@@ -5,6 +5,7 @@ import { CarriedFlower } from './CarriedFlower';
 import { IconCluster } from './IconCluster';
 import { Subtitle } from './Subtitle';
 import { useFlower, sceneStateFor } from '../hooks/useFlower';
+import { useSfx } from '../hooks/useSfx';
 import { flowerStore } from '../lib/flowerStore';
 import {
   TOMBSTONE_SUBTITLES,
@@ -36,30 +37,10 @@ const HURT_SFX = `${BASE}audio/voice-hurt.mp3`;
 const SLOT_SFX = `${BASE}audio/slot.mp3`;
 
 const SCENE_STATES: SceneState[] = ['empty', 'flower', 'rot'];
-const SCENE_IMAGES: Record<SceneState, string> = {
-  empty: `${BASE}assets/scene.webp`,
-  flower: `${BASE}assets/scene-flower.webp`,
-  rot: `${BASE}assets/scene-rot.webp`,
-};
 
 export function Scene() {
   const flower = useFlower();
-
-  const [, setNowTick] = useState(0);
-  useEffect(() => {
-    if (!flower) return;
-    const id = window.setInterval(() => setNowTick((n) => n + 1), 1000);
-    return () => window.clearInterval(id);
-  }, [flower]);
-
   const sceneState = sceneStateFor(flower);
-
-  useEffect(() => {
-    SCENE_STATES.forEach((s) => {
-      const img = new Image();
-      img.src = SCENE_IMAGES[s];
-    });
-  }, []);
 
   const [sfxOn, setSfxOn] = useState(true);
   const [carry, setCarry] = useState<CarryType>(null);
@@ -83,11 +64,11 @@ export function Scene() {
     [],
   );
 
-  // Replenish ticker: rerender every second so derived flower stock updates
-  // without user interaction.
-  const [, setStockTick] = useState(0);
+  // Tick once a second so derived values (flower stock, time-to-rot, etc)
+  // recompute without user interaction.
+  const [, setTick] = useState(0);
   useEffect(() => {
-    const id = window.setInterval(() => setStockTick((n) => n + 1), 1000);
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -136,79 +117,10 @@ export function Scene() {
     return () => window.removeEventListener('keydown', handler);
   }, [carry]);
 
-  // Web Audio API setup. Context + buffers are created/decoded eagerly so
-  // they're ready by the time the user clicks. A one-shot listener on the
-  // first user interaction calls resume() to unlock on iOS Safari.
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const gainRef = useRef<GainNode | null>(null);
-  const buffersRef = useRef<Map<string, AudioBuffer>>(new Map());
-  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
-
-  useEffect(() => {
-    const Ctor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: typeof AudioContext })
-        .webkitAudioContext;
-    if (!Ctor) return;
-    const ctx = new Ctor();
-    audioCtxRef.current = ctx;
-    const gain = ctx.createGain();
-    gain.gain.value = 0.3;
-    gain.connect(ctx.destination);
-    gainRef.current = gain;
-
-    [SUBTITLE_SFX, SLEEPY_SFX, HURT_SFX, SLOT_SFX].forEach((url) => {
-      fetch(url)
-        .then((r) => r.arrayBuffer())
-        .then((ab) => ctx.decodeAudioData(ab))
-        .then((buf) => buffersRef.current.set(url, buf))
-        .catch(() => {});
-    });
-
-    const unlock = () => {
-      if (ctx.state === 'suspended') void ctx.resume();
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
-    };
-    window.addEventListener('pointerdown', unlock);
-    window.addEventListener('keydown', unlock);
-
-    return () => {
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
-      void ctx.close();
-    };
-  }, []);
-
-  function stopActiveSource() {
-    const src = activeSourceRef.current;
-    if (!src) return;
-    try {
-      src.stop();
-    } catch {
-      /* already stopped */
-    }
-    activeSourceRef.current = null;
-  }
-
-  function playSample(url: string) {
-    if (!sfxOn) return;
-    const ctx = audioCtxRef.current;
-    const gain = gainRef.current;
-    const buf = buffersRef.current.get(url);
-    if (!ctx || !gain || !buf) return;
-    if (ctx.state === 'suspended') void ctx.resume();
-    stopActiveSource();
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(gain);
-    src.start();
-    activeSourceRef.current = src;
-  }
-
-  function playSlotSfx() {
-    playSample(SLOT_SFX);
-  }
+  const sfx = useSfx(
+    { normal: SUBTITLE_SFX, sleepy: SLEEPY_SFX, hurt: HURT_SFX, slot: SLOT_SFX },
+    { enabled: sfxOn },
+  );
 
   function showSubtitle(
     text: string,
@@ -216,9 +128,7 @@ export function Scene() {
   ) {
     subtitleIdRef.current += 1;
     setSubtitle({ id: subtitleIdRef.current, text });
-    const url =
-      voice === 'sleepy' ? SLEEPY_SFX : voice === 'hurt' ? HURT_SFX : SUBTITLE_SFX;
-    playSample(url);
+    sfx.play(voice);
   }
 
   function pickRandom<T>(list: T[], lastRef: React.MutableRefObject<number>): T {
@@ -240,7 +150,7 @@ export function Scene() {
     if (carry === 'flower' && sceneState === 'empty') {
       void flowerStore.placeFlower();
       clearCarry();
-      playSlotSfx();
+      sfx.play('slot');
       return;
     }
     if (carry === 'flower' && sceneState === 'rot') {
@@ -265,7 +175,7 @@ export function Scene() {
 
   function handleRotClick() {
     void flowerStore.removeFlower();
-    playSlotSfx();
+    sfx.play('slot');
   }
 
   async function handleFlowerClick() {
@@ -295,25 +205,25 @@ export function Scene() {
   function handleFlowerSlotClick() {
     if (carry === 'flower') {
       clearCarry();
-      playSlotSfx();
+      sfx.play('slot');
       return;
     }
     if (carry === 'rot') return;
     if (flowerStock <= 0) return;
     setCarry('flower');
-    playSlotSfx();
+    sfx.play('slot');
   }
 
   function handleRotSlotClick() {
     if (carry === 'rot') {
       clearCarry();
-      playSlotSfx();
+      sfx.play('slot');
       return;
     }
     if (carry === 'flower') return;
     if (rotCount <= 0) return;
     setCarry('rot');
-    playSlotSfx();
+    sfx.play('slot');
   }
 
   function handleSceneClick(e: React.MouseEvent<HTMLDivElement>) {

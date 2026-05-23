@@ -35,7 +35,7 @@ body,
   padding: 0;
   height: 100%;
   overflow: hidden;
-  background: var(--color-bg);
+  background: #000;
   color: var(--color-ink);
   font-family: var(--font-body);
   cursor: url('/assets/cursor-pointy-hand.png') 12 12, auto;

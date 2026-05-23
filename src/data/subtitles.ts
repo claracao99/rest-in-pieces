@@ -7,7 +7,7 @@ export const TOMBSTONE_SUBTITLES = [
   'Pointless mechanics. Pointless feelings.',
   'Everything rots faster than expected.',
   'She made a website out of this.',
-  'Strong start. Mediocre follow-through.',
+  'Strong start. Mediocre follow through.',
   "They couldn't ship the relationship.",
 ];
 

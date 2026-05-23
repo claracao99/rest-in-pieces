@@ -51,8 +51,12 @@ button {
 /* ------------------------------------------------------------------ */
 
 .scene {
-  position: relative;
-  width: 100vw;
+  /* Anchor to visual viewport (dvw/dvh) so mobile orientation changes and
+     dynamic browser chrome don't offset the centered stage. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvw;
   height: 100dvh;
   overflow: hidden;
   background: #000;
@@ -93,8 +97,8 @@ button {
   position: relative;
   /* Stage aspect matches scene art (2880:2046). Full scene always visible,
      no internal cropping. */
-  width: min(100vw, calc(100dvh * 2880 / 2046));
-  height: min(100dvh, calc(100vw * 2046 / 2880));
+  width: min(100dvw, calc(100dvh * 2880 / 2046));
+  height: min(100dvh, calc(100dvw * 2046 / 2880));
   overflow: hidden;
 }
 

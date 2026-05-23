@@ -9,6 +9,7 @@ export const TOMBSTONE_SUBTITLES = [
   'She made a website out of this.',
   'Strong start. Mediocre follow through.',
   "They couldn't ship the relationship.",
+  'How many tokens does it take to move on?',
 ];
 
 export const FERTILIZE_SUBTITLES = [

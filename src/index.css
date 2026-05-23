@@ -402,10 +402,12 @@ button {
 /* ------------------------------------------------------------------ */
 
 .mobile-warning {
+  /* Anchor to visual viewport via dvw/dvh — inset would re-introduce the
+     layout-viewport size (including hidden mobile chrome) and offset the
+     centering. */
   position: fixed;
-  inset: 0;
-  /* Explicit dvh so the visible viewport (excluding mobile browser chrome)
-     is used for centering. */
+  top: 0;
+  left: 0;
   width: 100dvw;
   height: 100dvh;
   background-color: #000;

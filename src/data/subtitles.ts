@@ -1,5 +1,5 @@
 export const TOMBSTONE_SUBTITLES = [
-  'Cause of death, stand-up comedy attempts.',
+  'Cause of death, bad joke delivered with confidence.',
   'Here for a bad time, not a long time.',
   'This couple did not take any photos together.',
   'Klei sends regards.',

@@ -132,38 +132,68 @@ export function Scene() {
     return () => window.removeEventListener('keydown', handler);
   }, [carry]);
 
-  const subtitleSfxRef = useRef<HTMLAudioElement | null>(null);
-  const sleepySfxRef = useRef<HTMLAudioElement | null>(null);
-  const hurtSfxRef = useRef<HTMLAudioElement | null>(null);
-  const slotSfxRef = useRef<HTMLAudioElement | null>(null);
-  if (typeof window !== 'undefined' && !subtitleSfxRef.current) {
-    subtitleSfxRef.current = new Audio(SUBTITLE_SFX);
-    subtitleSfxRef.current.volume = 0.3;
-    sleepySfxRef.current = new Audio(SLEEPY_SFX);
-    sleepySfxRef.current.volume = 0.3;
-    hurtSfxRef.current = new Audio(HURT_SFX);
-    hurtSfxRef.current.volume = 0.3;
-    slotSfxRef.current = new Audio(SLOT_SFX);
-    slotSfxRef.current.volume = 0.3;
+  // Web Audio API setup. Bypasses iOS Safari's hardware mute switch (which
+  // silences regular HTML <audio>) so SFX play reliably on mobile. Created
+  // lazily on the first user interaction to satisfy autoplay policy.
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const buffersRef = useRef<Map<string, AudioBuffer>>(new Map());
+  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
+
+  function ensureAudioCtx(): AudioContext {
+    if (audioCtxRef.current) {
+      if (audioCtxRef.current.state === 'suspended') {
+        void audioCtxRef.current.resume();
+      }
+      return audioCtxRef.current;
+    }
+    const Ctor =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    const ctx = new Ctor();
+    audioCtxRef.current = ctx;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.3;
+    gain.connect(ctx.destination);
+    gainRef.current = gain;
+    // Pre-load buffers
+    [SUBTITLE_SFX, SLEEPY_SFX, HURT_SFX, SLOT_SFX].forEach((url) => {
+      fetch(url)
+        .then((r) => r.arrayBuffer())
+        .then((ab) => ctx.decodeAudioData(ab))
+        .then((buf) => buffersRef.current.set(url, buf))
+        .catch(() => {});
+    });
+    return ctx;
+  }
+
+  function stopActiveSource() {
+    const src = activeSourceRef.current;
+    if (!src) return;
+    try {
+      src.stop();
+    } catch {
+      /* already stopped */
+    }
+    activeSourceRef.current = null;
+  }
+
+  function playSample(url: string) {
+    if (!sfxOn) return;
+    const ctx = ensureAudioCtx();
+    const buf = buffersRef.current.get(url);
+    if (!buf) return; // not yet decoded; skip silently
+    stopActiveSource();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(gainRef.current!);
+    src.start();
+    activeSourceRef.current = src;
   }
 
   function playSlotSfx() {
-    if (!sfxOn) return;
-    const sfx = slotSfxRef.current;
-    if (!sfx) return;
-    stopAllSfx();
-    sfx.currentTime = 0;
-    void sfx.play().catch(() => {});
-  }
-
-  function stopAllSfx() {
-    [subtitleSfxRef, sleepySfxRef, hurtSfxRef, slotSfxRef].forEach((r) => {
-      const el = r.current;
-      if (el && !el.paused) {
-        el.pause();
-        el.currentTime = 0;
-      }
-    });
+    playSample(SLOT_SFX);
   }
 
   function showSubtitle(
@@ -172,18 +202,9 @@ export function Scene() {
   ) {
     subtitleIdRef.current += 1;
     setSubtitle({ id: subtitleIdRef.current, text });
-    if (!sfxOn) return;
-    const sfx =
-      voice === 'sleepy'
-        ? sleepySfxRef.current
-        : voice === 'hurt'
-        ? hurtSfxRef.current
-        : subtitleSfxRef.current;
-    if (sfx) {
-      stopAllSfx();
-      sfx.currentTime = 0;
-      void sfx.play().catch(() => {});
-    }
+    const url =
+      voice === 'sleepy' ? SLEEPY_SFX : voice === 'hurt' ? HURT_SFX : SUBTITLE_SFX;
+    playSample(url);
   }
 
   function pickRandom<T>(list: T[], lastRef: React.MutableRefObject<number>): T {

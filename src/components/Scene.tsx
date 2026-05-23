@@ -132,32 +132,27 @@ export function Scene() {
     return () => window.removeEventListener('keydown', handler);
   }, [carry]);
 
-  // Web Audio API setup. Bypasses iOS Safari's hardware mute switch (which
-  // silences regular HTML <audio>) so SFX play reliably on mobile. Created
-  // lazily on the first user interaction to satisfy autoplay policy.
+  // Web Audio API setup. Context + buffers are created/decoded eagerly so
+  // they're ready by the time the user clicks. A one-shot listener on the
+  // first user interaction calls resume() to unlock on iOS Safari.
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainRef = useRef<GainNode | null>(null);
   const buffersRef = useRef<Map<string, AudioBuffer>>(new Map());
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
-  function ensureAudioCtx(): AudioContext {
-    if (audioCtxRef.current) {
-      if (audioCtxRef.current.state === 'suspended') {
-        void audioCtxRef.current.resume();
-      }
-      return audioCtxRef.current;
-    }
+  useEffect(() => {
     const Ctor =
       window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
         .webkitAudioContext;
+    if (!Ctor) return;
     const ctx = new Ctor();
     audioCtxRef.current = ctx;
     const gain = ctx.createGain();
     gain.gain.value = 0.3;
     gain.connect(ctx.destination);
     gainRef.current = gain;
-    // Pre-load buffers
+
     [SUBTITLE_SFX, SLEEPY_SFX, HURT_SFX, SLOT_SFX].forEach((url) => {
       fetch(url)
         .then((r) => r.arrayBuffer())
@@ -165,8 +160,21 @@ export function Scene() {
         .then((buf) => buffersRef.current.set(url, buf))
         .catch(() => {});
     });
-    return ctx;
-  }
+
+    const unlock = () => {
+      if (ctx.state === 'suspended') void ctx.resume();
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
+
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+      void ctx.close();
+    };
+  }, []);
 
   function stopActiveSource() {
     const src = activeSourceRef.current;
@@ -181,13 +189,15 @@ export function Scene() {
 
   function playSample(url: string) {
     if (!sfxOn) return;
-    const ctx = ensureAudioCtx();
+    const ctx = audioCtxRef.current;
+    const gain = gainRef.current;
     const buf = buffersRef.current.get(url);
-    if (!buf) return; // not yet decoded; skip silently
+    if (!ctx || !gain || !buf) return;
+    if (ctx.state === 'suspended') void ctx.resume();
     stopActiveSource();
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    src.connect(gainRef.current!);
+    src.connect(gain);
     src.start();
     activeSourceRef.current = src;
   }

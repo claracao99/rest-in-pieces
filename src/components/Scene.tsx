@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { TombHitArea } from './TombHitArea';
 import { TopSlots } from './TopSlots';
 import { CarriedFlower } from './CarriedFlower';
-import { AtmosphericEffects } from './AtmosphericEffects';
 import { IconCluster } from './IconCluster';
 import { Subtitle } from './Subtitle';
 import { useFlower, sceneStateFor } from '../hooks/useFlower';
@@ -347,8 +346,6 @@ export function Scene() {
           onFlowerEnter={() => setOverFlower(true)}
           onFlowerLeave={() => setOverFlower(false)}
         />
-
-        <AtmosphericEffects />
 
         <TopSlots
           flowerStock={flowerStock}

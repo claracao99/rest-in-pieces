@@ -26,16 +26,20 @@ type CarryType = 'flower' | 'rot' | null;
 const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * MINUTE_MS;
 
-const SUBTITLE_SFX = "/audio/Don't Starve Together Normal Voice SFX.mp3";
-const SLEEPY_SFX = "/audio/Don't Starve Together Sleepy Voice.mp3";
-const HURT_SFX = "/audio/Don't Starve Together Hurt Voice.mp3";
-const SLOT_SFX = '/audio/slot.mp3';
+// Static asset paths must include Vite's base prefix (set in vite.config.ts
+// to '/rest-in-pieces/' for GitHub Pages). String literals aren't rewritten
+// at build time, so we prepend import.meta.env.BASE_URL.
+const BASE = import.meta.env.BASE_URL;
+const SUBTITLE_SFX = `${BASE}audio/Don't Starve Together Normal Voice SFX.mp3`;
+const SLEEPY_SFX = `${BASE}audio/Don't Starve Together Sleepy Voice.mp3`;
+const HURT_SFX = `${BASE}audio/Don't Starve Together Hurt Voice.mp3`;
+const SLOT_SFX = `${BASE}audio/slot.mp3`;
 
 const SCENE_STATES: SceneState[] = ['empty', 'flower', 'rot'];
 const SCENE_IMAGES: Record<SceneState, string> = {
-  empty: '/assets/scene.webp',
-  flower: '/assets/scene-flower.webp',
-  rot: '/assets/scene-rot.webp',
+  empty: `${BASE}assets/scene.webp`,
+  flower: `${BASE}assets/scene-flower.webp`,
+  rot: `${BASE}assets/scene-rot.webp`,
 };
 
 export function Scene() {

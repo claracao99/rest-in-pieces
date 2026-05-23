@@ -4,17 +4,18 @@ import { MobileWarning } from './components/MobileWarning';
 import { Loading } from './components/Loading';
 import { useIsMobile } from './hooks/useIsMobile';
 
+const BASE = import.meta.env.BASE_URL;
 const CRITICAL_ASSETS = [
-  '/assets/scene.webp',
-  '/assets/scene-flower.webp',
-  '/assets/scene-rot.webp',
-  '/assets/flower.png',
-  '/assets/rot.png',
-  '/assets/slots-empty.png',
-  '/assets/cursor-open-hand.png',
-  '/assets/cursor-pointy-hand.png',
-  '/assets/speaker-on.png',
-  '/assets/speaker-off.png',
+  `${BASE}assets/scene.webp`,
+  `${BASE}assets/scene-flower.webp`,
+  `${BASE}assets/scene-rot.webp`,
+  `${BASE}assets/flower.png`,
+  `${BASE}assets/rot.png`,
+  `${BASE}assets/slots-empty.png`,
+  `${BASE}assets/cursor-open-hand.png`,
+  `${BASE}assets/cursor-pointy-hand.png`,
+  `${BASE}assets/speaker-on.png`,
+  `${BASE}assets/speaker-off.png`,
 ];
 
 const LINE_COUNT = 3;

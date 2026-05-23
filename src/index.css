@@ -107,6 +107,9 @@ button {
   width: min(100dvw, calc(100dvh * 2880 / 2046));
   height: min(100dvh, calc(100dvw * 2046 / 2880));
   overflow: hidden;
+  /* Enables cqw / cqh on descendants so HUD elements scale 1:1 with the
+     stage instead of the viewport. */
+  container-type: size;
 }
 
 /* Vignette disabled — uncomment to re-enable */
@@ -250,17 +253,16 @@ button {
 
 .icon-cluster {
   position: absolute;
-  top: 24px;
-  left: 24px;
+  top: 0.83cqw;
+  left: 0.83cqw;
   display: flex;
-  gap: 12px;
+  gap: 0.42cqw;
   z-index: 20;
-  transform-origin: top left;
 }
 
 .icon-btn {
-  width: 96px;
-  height: 96px;
+  width: 3.33cqw;
+  height: 3.33cqw;
   border: none;
   background: transparent;
   padding: 0;
@@ -277,8 +279,8 @@ button {
 
 .icon {
   display: inline-block;
-  width: 80px;
-  height: 80px;
+  width: 2.78cqw;
+  height: 2.78cqw;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -293,12 +295,11 @@ button {
 
 .top-slots {
   position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 276px;
-  height: 178px;
+  top: 0.83cqw;
+  right: 0.83cqw;
+  width: 9.58cqw;
+  height: 6.18cqw;
   z-index: 20;
-  transform-origin: top right;
 }
 
 .top-slots__frame {
@@ -353,10 +354,10 @@ button {
 .top-slots__count {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-size: 44px;
+  font-size: 1.53cqw;
   font-family: var(--font-display);
   color: var(--color-ink);
-  -webkit-text-stroke: 5px #000;
+  -webkit-text-stroke: 0.17cqw #000;
   paint-order: stroke fill;
   pointer-events: none;
 }
@@ -451,19 +452,3 @@ button {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85), 0 0 28px rgba(0, 0, 0, 0.6);
 }
 
-/* ------------------------------------------------------------------ */
-/* Responsive HUD scaling                                              */
-/* ------------------------------------------------------------------ */
-
-/* Small landscape phones / cramped windows. Scale HUD elements down so
-   they don't visually dominate the scene. transform-origin pins them to
-   their anchored corner so positioning stays correct. */
-@media (max-width: 1100px) {
-  .top-slots { transform: scale(0.7); }
-  .icon-cluster { transform: scale(0.65); }
-}
-
-@media (max-width: 820px) {
-  .top-slots { transform: scale(0.55); }
-  .icon-cluster { transform: scale(0.5); }
-}

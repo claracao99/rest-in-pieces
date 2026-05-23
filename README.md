@@ -4,7 +4,6 @@ A virtual tombstone memorial. React + Vite. Session-based, single-visitor — no
 
 Live at **https://claracao99.github.io/rest-in-pieces/**.
 
-See [for-clara.md](./for-clara.md) for the creative / asset checklist.
 
 ## Run locally
 

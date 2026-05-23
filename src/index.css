@@ -55,7 +55,7 @@ button {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-bg);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,7 +411,7 @@ button {
 .loading {
   position: fixed;
   inset: 0;
-  background: var(--color-bg);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -442,7 +442,7 @@ button {
 .mobile-warning {
   position: fixed;
   inset: 0;
-  background-color: var(--color-bg);
+  background-color: #000;
   display: flex;
   align-items: center;
   justify-content: center;

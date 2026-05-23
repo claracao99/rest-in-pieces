@@ -15,3 +15,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local backups of pre-compression assets
+public/assets/_png_originals/
+
+# TypeScript build cache
+tsconfig.tsbuildinfo

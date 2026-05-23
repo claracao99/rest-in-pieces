@@ -59,6 +59,12 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: scene-fade-in 1100ms ease forwards;
+}
+
+@keyframes scene-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .scene__backdrop {
@@ -79,9 +85,9 @@ button {
   opacity: 1;
 }
 
-.scene__backdrop--empty  { background-image: url('/assets/scene.png'); }
-.scene__backdrop--flower { background-image: url('/assets/scene-flower.png'); }
-.scene__backdrop--rot    { background-image: url('/assets/scene-rot.png'); }
+.scene__backdrop--empty  { background-image: url('/assets/scene.webp'); }
+.scene__backdrop--flower { background-image: url('/assets/scene-flower.webp'); }
+.scene__backdrop--rot    { background-image: url('/assets/scene-rot.webp'); }
 
 .scene__stage {
   position: relative;
@@ -134,13 +140,13 @@ button {
 }
 
 .scene__bg--empty {
-  background-image: url('/assets/scene.png');
+  background-image: url('/assets/scene.webp');
 }
 .scene__bg--flower {
-  background-image: url('/assets/scene-flower.png');
+  background-image: url('/assets/scene-flower.webp');
 }
 .scene__bg--rot {
-  background-image: url('/assets/scene-rot.png');
+  background-image: url('/assets/scene-rot.webp');
 }
 
 /* ------------------------------------------------------------------ */
@@ -399,6 +405,37 @@ button {
 }
 
 /* ------------------------------------------------------------------ */
+/* Loading screen                                                       */
+/* ------------------------------------------------------------------ */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.loading__text {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 48px);
+  color: var(--color-ink);
+  margin: 0;
+  animation: loading-pulse 2s ease-in-out infinite;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+@keyframes loading-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+/* ------------------------------------------------------------------ */
 /* Mobile warning                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -411,12 +448,15 @@ button {
   justify-content: center;
   z-index: 1000;
   padding: 32px;
+  overflow: hidden;
 }
 
 .mobile-warning__panel {
+  position: relative;
   max-width: 90vw;
   text-align: center;
   color: var(--color-ink);
+  z-index: 1;
 }
 
 .mobile-warning__message {

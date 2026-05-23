@@ -34,9 +34,9 @@ const SLOT_SFX = '/audio/slot.mp3';
 
 const SCENE_STATES: SceneState[] = ['empty', 'flower', 'rot'];
 const SCENE_IMAGES: Record<SceneState, string> = {
-  empty: '/assets/scene.png',
-  flower: '/assets/scene-flower.png',
-  rot: '/assets/scene-rot.png',
+  empty: '/assets/scene.webp',
+  flower: '/assets/scene-flower.webp',
+  rot: '/assets/scene-rot.webp',
 };
 
 export function Scene() {

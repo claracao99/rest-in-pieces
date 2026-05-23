@@ -302,10 +302,9 @@ export function Scene() {
         />
 
         <IconCluster sfxOn={sfxOn} onToggle={() => setSfxOn((v) => !v)} />
-
-        <Subtitle entry={subtitle} />
       </div>
 
+      <Subtitle entry={subtitle} />
       <CarriedFlower cursor={carry ? cursor : null} type={carry} grown={grown} />
     </div>
   );

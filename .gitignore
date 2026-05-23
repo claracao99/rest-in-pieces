@@ -21,3 +21,6 @@ public/assets/_png_originals/
 
 # TypeScript build cache
 tsconfig.tsbuildinfo
+
+# Vite local cache
+.vite/

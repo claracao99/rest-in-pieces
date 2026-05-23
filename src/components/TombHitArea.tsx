@@ -16,10 +16,10 @@ interface Props {
 
 // Path coords are in image space (2880×2046 viewBox matches scene asset).
 const TOMB_PATH =
-  'M 1050 663 ' +
-  'C 1050 453, 1755 453, 1755 663 ' +
-  'L 1755 1533 ' +
-  'L 1050 1533 Z';
+  'M 1030 663 ' +
+  'C 1030 453, 1755 453, 1755 663 ' +
+  'L 1755 1693 ' +
+  'L 1030 1693 Z';
 
 const FLOWER_PATH =
   'M 1170 1728 ' +

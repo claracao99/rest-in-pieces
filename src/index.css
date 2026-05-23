@@ -1,0 +1,428 @@
+/*
+ * Rest in Pieces — base styles
+ *
+ * Visual assets are referenced from /public/assets/ and will be missing until
+ * created. The CSS gracefully falls back to flat colors so the scene is still
+ * navigable while you illustrate.
+ */
+
+@font-face {
+  font-family: 'Belisa Plumilla';
+  src: url('/fonts/belisa_plumilla.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --color-bg: #0a1020;
+  --color-ink: #e8e4d8;
+  --color-ink-muted: #b4ad9c;
+  --color-stone: #2a2a2a;
+
+  --font-display: 'Belisa Plumilla', 'Cormorant Garamond', serif;
+  --font-body: 'Belisa Plumilla', 'EB Garamond', Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  cursor: url('/assets/cursor-pointy-hand.png') 12 12, auto;
+}
+
+button {
+  font-family: inherit;
+  cursor: inherit;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scene & layers                                                       */
+/* ------------------------------------------------------------------ */
+
+.scene {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scene__backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(40px) brightness(0.45) saturate(0.7);
+  transform: scale(1.1);
+  opacity: 0;
+  transition: opacity 800ms ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.scene__backdrop--active {
+  opacity: 1;
+}
+
+.scene__backdrop--empty  { background-image: url('/assets/scene.png'); }
+.scene__backdrop--flower { background-image: url('/assets/scene-flower.png'); }
+.scene__backdrop--rot    { background-image: url('/assets/scene-rot.png'); }
+
+.scene__stage {
+  position: relative;
+  /* Stage aspect matches scene art (2880:2046). Full scene always visible,
+     no internal cropping. */
+  width: min(100vw, calc(100vh * 2880 / 2046));
+  height: min(100vh, calc(100vw * 2046 / 2880));
+  overflow: hidden;
+}
+
+/* Vignette disabled — uncomment to re-enable */
+/* .scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    rgba(0, 0, 0, 0.4) 75%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+} */
+
+.scene__bg {
+  position: absolute;
+  inset: 0;
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 800ms ease;
+  /* Soft fade at edges so the scene blends into the blurred backdrop
+     rather than meeting a hard light/dark seam. */
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, black 4%,  black 92%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 14%, black 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, black 4%,  black 92%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 14%, black 86%, transparent 100%);
+  mask-composite: intersect;
+}
+
+.scene__bg--active {
+  opacity: 1;
+}
+
+.scene__bg--empty {
+  background-image: url('/assets/scene.png');
+}
+.scene__bg--flower {
+  background-image: url('/assets/scene-flower.png');
+}
+.scene__bg--rot {
+  background-image: url('/assets/scene-rot.png');
+}
+
+/* ------------------------------------------------------------------ */
+/* Tomb hit area (SVG overlay)                                          */
+/* ------------------------------------------------------------------ */
+
+.tomb-hit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tomb-hit__path {
+  fill: transparent;
+  pointer-events: none;
+  cursor: inherit;
+}
+
+.tomb-hit__path--interactive {
+  pointer-events: all;
+}
+
+.scene--carrying {
+  cursor: url('/assets/cursor-open-hand.png') 12 12, pointer;
+}
+
+/* Debug: uncomment to visualise hit areas (tomb=pink, flower=yellow, rot=cyan) */
+/* .tomb-hit__path--tomb { fill: rgba(255, 0, 200, 0.20); stroke: rgba(255, 0, 200, 0.9); stroke-width: 4; } */
+/* .tomb-hit__path--flower { fill: rgba(255, 220, 0, 0.45); stroke: rgba(255, 220, 0, 1.0); stroke-width: 4; } */
+/* .tomb-hit__path--rot { fill: rgba(0, 220, 220, 0.45); stroke: rgba(0, 220, 220, 1.0); stroke-width: 4; } */
+
+/* ------------------------------------------------------------------ */
+/* Flower (used only for the carried + top-slot art)                    */
+/* ------------------------------------------------------------------ */
+
+.flower {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+.flower--fresh {
+  background-image: url('/assets/flower.png');
+}
+
+.flower--rot {
+  background-image: url('/assets/rot.png');
+}
+
+/* ------------------------------------------------------------------ */
+/* Atmosphere                                                           */
+/* ------------------------------------------------------------------ */
+
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.mote {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(170, 200, 165, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 0 8px 2px rgba(140, 180, 140, 0.15), 0 0 20px 6px rgba(140, 180, 140, 0.06);
+  animation: mote-drift linear infinite;
+}
+
+@keyframes mote-drift {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(80px, -120px);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Subtitle                                                             */
+/* ------------------------------------------------------------------ */
+
+.subtitle {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  max-width: 100vw;
+  padding: 0;
+  white-space: normal;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.3;
+  color: var(--color-ink);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85), 0 0 28px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 30;
+  animation: subtitle-show 4.2s ease forwards;
+}
+
+@keyframes subtitle-show {
+  0%   { opacity: 0; transform: translate(-50%, 10px); }
+  18%  { opacity: 1; transform: translate(-50%, 0); }
+  78%  { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Icon cluster                                                         */
+/* ------------------------------------------------------------------ */
+
+.icon-cluster {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: flex;
+  gap: 12px;
+  z-index: 20;
+}
+
+.icon-btn {
+  width: 96px;
+  height: 96px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: inherit;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.08);
+}
+
+.icon {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.icon--music.on { background-image: url('/assets/speaker-on.png'); }
+.icon--music.off { background-image: url('/assets/speaker-off.png'); }
+
+/* ------------------------------------------------------------------ */
+/* Top slots (single combined frame with flower + rot baked in)         */
+/* ------------------------------------------------------------------ */
+
+.top-slots {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 276px;
+  height: 178px;
+  z-index: 20;
+}
+
+.top-slots__frame {
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/slots-empty.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+}
+
+.top-slots__art {
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  transform: scale(0.92);
+  transform-origin: center;
+}
+
+.top-slots__art--flower {
+  background-image: url('/assets/flower.png');
+}
+
+.top-slots__art--rot {
+  background-image: url('/assets/rot.png');
+}
+
+.top-slots__art--empty {
+  opacity: 0.2;
+  filter: grayscale(1) brightness(0.85);
+}
+
+.top-slots__hit {
+  position: absolute;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: inherit;
+}
+
+/* Uncomment to visualise the hit regions while tuning positions */
+/*.top-slots__hit { background: rgba(255, 0, 200, 0.25); border: 1px dashed rgba(255, 255, 255, 0.5); } */
+
+
+.top-slots__hit--flower:disabled {
+  cursor: inherit;
+}
+
+.top-slots__count {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 44px;
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  -webkit-text-stroke: 5px #000;
+  paint-order: stroke fill;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Carried flower (follows cursor)                                      */
+/* ------------------------------------------------------------------ */
+
+.carried-flower {
+  position: fixed;
+  width: 77px;
+  height: 77px;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+  z-index: 90;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  transition: transform 200ms ease;
+}
+
+.carried-flower--grown {
+  transform: translate(-50%, -50%) scale(1.8);
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile warning                                                       */
+/* ------------------------------------------------------------------ */
+
+.mobile-warning {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 32px;
+}
+
+.mobile-warning__panel {
+  max-width: 90vw;
+  text-align: center;
+  color: var(--color-ink);
+}
+
+.mobile-warning__message {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 8vw, 64px);
+  line-height: 1.3;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85), 0 0 28px rgba(0, 0, 0, 0.6);
+}

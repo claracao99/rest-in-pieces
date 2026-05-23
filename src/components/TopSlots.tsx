@@ -75,7 +75,6 @@ export function TopSlots({
         onClick={onPickUpFlower}
         disabled={!canPickUp}
         aria-label={flowerLabel}
-        title={flowerLabel}
       />
       <button
         className={`top-slots__hit top-slots__hit--rot ${
@@ -90,7 +89,6 @@ export function TopSlots({
         onClick={onUseRot}
         disabled={rotDisabled}
         aria-label={rotLabel}
-        title={rotLabel}
       />
 
       {flowerStock > 0 && (

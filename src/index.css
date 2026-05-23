@@ -52,7 +52,9 @@ button {
 
 .scene {
   /* Anchor to visual viewport (dvw/dvh) so mobile orientation changes and
-     dynamic browser chrome don't offset the centered stage. */
+     dynamic browser chrome don't offset the centered stage. Safe-area
+     padding keeps the stage centered within the visible region on
+     notched phones in landscape. */
   position: fixed;
   top: 0;
   left: 0;
@@ -63,6 +65,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
   animation: scene-fade-in 1100ms ease forwards;
 }
 

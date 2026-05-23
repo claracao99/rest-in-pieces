@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 export type SfxKey = 'normal' | 'sleepy' | 'hurt' | 'slot';
 
@@ -31,6 +31,11 @@ export function useSfx(sources: Record<SfxKey, string>, opts: Options) {
       }
     });
   }
+
+  // Cut off any currently-playing sound the instant the user mutes.
+  useEffect(() => {
+    if (!opts.enabled) stopAll();
+  }, [opts.enabled]);
 
   function play(key: SfxKey) {
     if (!opts.enabled) return;

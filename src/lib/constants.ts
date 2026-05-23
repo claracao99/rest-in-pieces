@@ -9,4 +9,4 @@ export const FLOWER_REPLENISH_INTERVAL_MS = 15 * 1000;
 export const FLOWER_INITIAL_STOCK = 1;
 export const FLOWER_MAX_STOCK = 1;
 
-export const MOBILE_BREAKPOINT_PX = 768;
+export const MOBILE_BREAKPOINT_PX = 600;

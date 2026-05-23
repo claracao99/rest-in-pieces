@@ -11,9 +11,10 @@ interface Props {
 const FLOWER_HIT = { left: 52, top: 18, width: 36, height: 62 };
 const ROT_HIT = { left: 12, top: 18.0, width: 36, height: 62 };
 
-// Where the count badge sits (slot centers).
+// Where the count badge sits (slot centers). Same `top` on both so the two
+// numbers line up vertically.
 const FLOWER_COUNT_ANCHOR = { left: 70, top: 49 };
-const ROT_COUNT_ANCHOR = { left: 30.4, top: 53.4 };
+const ROT_COUNT_ANCHOR = { left: 30, top: 49 };
 
 export function TopSlots({
   canPickUp,
